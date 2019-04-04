@@ -10,8 +10,10 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType; 
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 
-use App\Entity\Article;
 use App\Repository\ArticleRepository;
+use App\Entity\Article;
+use App\Entity\Comment;
+use App\Form\CommentType;
 use App\Form\ArticleType;
 
 class FaqController extends AbstractController
@@ -78,11 +80,26 @@ class FaqController extends AbstractController
     /**
      * @Route("/faq/{id}", name="faq_show")
      */
-    public function show(Article $article)
+    public function show(Article $article, Request $request, ObjectManager $manager)
     {
+        $comment = new Comment();
+        $form=$this->createForm(CommentType::class, $comment);
+        $form->handleRequest($request);
+
+        if($form->isSubmitted() && $form->isValid()){
+            $comment->setCreatedAt(new \DateTime())
+                    ->setArticle($article);
+
+            $manager->persist($comment);
+            $manager->flush();
+
+            return $this-> redirectToRoute('faq_show', ['id' => $article->getId
+            ()]);
+        }
 
         return $this->render('faq/show.html.twig', [
-            'article' => $article
+            'article' => $article,
+            'commentForm' => $form->createView()
             
         ]);
     }

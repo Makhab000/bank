@@ -14,17 +14,35 @@
 </article>
 
 <section id="commentaires">
-{% for comment in article.comments %}
-    <div class="comment">
-        <div class="row">
-            <div class "col-3">
-                {{comment.author}} (<small>{{comment.createdAt | date('d/m/Y à H:i')}}</small>)
+    <h1>{{ article.comments | length }} commentaires : </h1>
+        {% for comment in article.comments %}
+            <div class="comment">
+                <div class="row">
+                    <div class "col-3">
+                        {{comment.author}} (<small>{{comment.createdAt | date('d/m/Y à H:i')}}</small>)
+                    </div>
+                    <div class="col">
+                        {{comment.content | raw}}   
+                    </div>
+                </div>
             </div>
-            <div class="col">
-                {{comment.content | raw}}   
-            </div>
-        </div>
-    </div>
-    {% endfor %}
-   </section> 
+        {% endfor %}
+
+        {% if app.user %}
+
+        {{ form_start(commentForm) }}
+        {{ form_row( commentForm.author, {'attr': {'placeholder': "Votre nom" }})}}
+        {{ form_row( commentForm.content, {'attr': {'placeholder': "Vous pouvez écrire votre commentaire ici..."}})}}
+        
+        <button type="submit" class"btn btn-success"> Envoyer</button>
+        
+        {{ form_end(commentForm) }}
+
+        {% else %}
+            <h2> Connectez-vous pour ajouter un commmentaire</h2>
+            <a href="{{path('security_login')}}" class="btn btn-primary ">Connexion
+            </a>
+        {% endif %}
+
+    </section> 
 {% endblock %}
